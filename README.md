@@ -4,6 +4,8 @@ Quick & easy import of GTFS data into a SQL database.
 * [GTFS (General Transit Feed Specification)](http://code.google.com/transit/spec/transit_feed_specification.html)
 * [List of Public GTFS feeds](http://code.google.com/p/googletransitdatafeed/wiki/PublicFeeds)
 
+This fork plans to clean up the import to stay as true to the GTFS specification as possible. The current version does some work to add columns, translate things, and doesn't import all tables.
+
 # License
 Released under the MIT (X11) license. See LICENSE in this directory.
 
