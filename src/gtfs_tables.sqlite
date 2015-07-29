@@ -75,6 +75,7 @@ create table gtfs_stops (
 
   location_type int, --FOREIGN KEY REFERENCES gtfs_location_types(location_type)
   parent_station text, --FOREIGN KEY REFERENCES gtfs_stops(stop_id)
+  wheelchair_boarding int,
   stop_timezone text,
   FOREIGN KEY (location_type) REFERENCES gtfs_location_types(location_type),
   FOREIGN KEY (parent_station) REFERENCES gtfs_stops(stop_id)
@@ -108,6 +109,7 @@ create table gtfs_routes (
   route_url   text,
   route_color text,
   route_text_color  text,
+  route_sort_order int,
   FOREIGN KEY (agency_id) REFERENCES gtfs_agency(agency_id),
   FOREIGN KEY (route_type) REFERENCES gtfs_route_types(route_type)
 );
@@ -218,6 +220,7 @@ create table gtfs_trips (
   direction_id  int NOT NULL, --NOT NULL --REFERENCES gtfs_directions(direction_id),
   block_id text,
   shape_id text,
+  wheelchair_accessible,
   -- unofficial features  
   trip_short_name text,
   FOREIGN KEY (route_id) REFERENCES gtfs_routes(route_id),
@@ -312,6 +315,8 @@ create table gtfs_feed_info (
   feed_publisher_url text,
   feed_timezone text,
   feed_lang text,
+  feed_start_date,
+  feed_end_date,
   feed_version text
 );
 

@@ -22,6 +22,8 @@
 
 import csv
 import sys
+import sqlite3
+
 
 class SpecialHandler(object):
   """
@@ -151,11 +153,11 @@ def import_file(fname, tablename, handler, COPY=True):
 
   if not COPY:  
     delim = ","
-    insertSQL = "INSERT INTO " + tablename + " (" + cols + ") VALUES (%s);"
+    insertSQL = "INSERT INTO " + tablename + "(" + cols + ") VALUES (%s)";
     func = lambda v: ((v and ("'"+v.replace("'","''")+"'")) or defaultVal)
   else:
     delim = "|"
-    copySQL = "COPY " + tablename + " (" + cols + ") FROM STDIN WITH NULL AS 'NULL' DELIMITER AS '" + delim + "';";
+    copySQL = "COPY " + tablename + " (" + cols + ") FROM STDIN WITH NULL AS 'NULL' DELIMITER AS '" + delim ;
     yield copySQL;
     insertSQL = "%s"
     func = lambda v: str.strip(v) or defaultVal
@@ -198,22 +200,29 @@ if __name__ == "__main__":
   handlers['trips'] = TripsHandler();
   handlers['frequencies'] = FrequenciesHandler();
 
-  if len(sys.argv) not in (2,3):
-    print "Usage: %s gtfs_data_dir [nocopy]" % sys.argv[0]
+  if len(sys.argv) not in (3,4):
+    print "Usage: %s gtfs_data_dir database_name [nocopy]" % sys.argv[0]
     print "  If nocopy is present, then uses INSERT instead of COPY."
     sys.exit()
 
   dirname = sys.argv[1]
+  dbname = sys.argv[2]
   useCopy = True;
 
 
-  useCopy = not ("nocopy" in sys.argv[2:])
+  useCopy = not ("nocopy" in sys.argv[3:])
 
   print "begin;"
+
+  
+  conn = sqlite3.connect(dbname)
+  curs = conn.cursor()
+  
 
   for fname in fnames:
     for statement in import_file(dirname+"/"+fname+".txt","gtfs_"+fname,
                                  handlers[fname],useCopy):
       print statement;
-
-  print "commit;"
+      curs.execute(statement);
+      #print
+    conn.commit();
