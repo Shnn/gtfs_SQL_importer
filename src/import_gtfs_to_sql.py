@@ -224,5 +224,4 @@ if __name__ == "__main__":
                                  handlers[fname],useCopy):
       print statement;
       curs.execute(statement);
-      #print
-    conn.commit();
+  conn.commit();
