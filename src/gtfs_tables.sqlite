@@ -15,6 +15,7 @@ drop table if exists gtfs_feed_info;
 
 drop table if exists gtfs_route_types;
 drop table if exists gtfs_directions;
+drop table if exists gtfs_route_directions;
 drop table if exists gtfs_pickup_dropoff_types;
 drop table if exists gtfs_payment_methods;
 
@@ -23,6 +24,8 @@ drop table if exists gtfs_transfer_types;
 
 drop table if exists service_combo_ids;
 drop table if exists service_combinations;
+drop table if exists gtfs_realtime_feeds;
+drop table if exists gtfs_stop_features;
 
 PRAGMA foreign_keys = OFF;
 
@@ -33,11 +36,12 @@ create table gtfs_agency (
   agency_name  text NOT NULL,--NOT NULL,
   agency_url   text NOT NULL,--NOT NULL,
   agency_timezone    text NOT NULL,--NOT NULL,
-  agency_lang  text
+  agency_lang  text,
+
   -- unofficial features
-  ,
   agency_phone text,
-  fare_url text
+  agency_fare_url text,
+  bikes_policy_url
 );
 
 --unoffical table, related to gtfs_stops(location_type)
@@ -72,7 +76,8 @@ create table gtfs_stops (
   stop_country text,
 
   -- unofficial features
-
+  direction text,
+  position text,
   location_type int, --FOREIGN KEY REFERENCES gtfs_location_types(location_type)
   parent_station text, --FOREIGN KEY REFERENCES gtfs_stops(stop_id)
   wheelchair_boarding int,
@@ -122,6 +127,11 @@ create table gtfs_directions (
 insert into gtfs_directions (direction_id, description) values (0,'This way');
 insert into gtfs_directions (direction_id, description) values (1,'That way');
 
+create table gtfs_route_directions (
+  route_id text,
+  direction_id int,
+  dirction_name text
+);
 
 create table gtfs_pickup_dropoff_types (
   type_id int PRIMARY KEY,
@@ -221,10 +231,17 @@ create table gtfs_trips (
   block_id text,
   shape_id text,
   wheelchair_accessible,
-  -- unofficial features  
+  -- unofficial features 
+  trip_type text,  
   trip_short_name text,
   FOREIGN KEY (route_id) REFERENCES gtfs_routes(route_id),
   FOREIGN KEY (direction_id) REFERENCES gtfs_directions(direction_id)
+);
+
+create table gtfs_stop_features (
+  stop_id text,
+  feature_type text,
+  feature_name text
 );
 
 create table gtfs_stop_times (
@@ -240,10 +257,10 @@ create table gtfs_stop_times (
 
   -- unofficial features
   ,
-  timepoint int
+  timepoint int,
+  continuous_stops,
 
   -- the following are not in the spec
-  ,
   arrival_time_seconds int, 
   departure_time_seconds int,
 
@@ -317,7 +334,15 @@ create table gtfs_feed_info (
   feed_lang text,
   feed_start_date,
   feed_end_date,
-  feed_version text
+  feed_version text,
+  feed_id text
+);
+
+create table gtfs_realtime_feeds (
+  url text,
+  trip_updates int,
+  alerts int,
+  vehicle_positions int
 );
 
 
